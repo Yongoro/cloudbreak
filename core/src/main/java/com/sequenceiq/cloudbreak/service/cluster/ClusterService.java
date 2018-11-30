@@ -49,6 +49,7 @@ import com.sequenceiq.cloudbreak.api.model.AmbariStackDetailsJson;
 import com.sequenceiq.cloudbreak.api.model.ConfigsResponse;
 import com.sequenceiq.cloudbreak.api.model.DatabaseVendor;
 import com.sequenceiq.cloudbreak.api.model.RecoveryMode;
+import com.sequenceiq.cloudbreak.api.model.ResourceStatus;
 import com.sequenceiq.cloudbreak.api.model.Status;
 import com.sequenceiq.cloudbreak.api.model.StatusRequest;
 import com.sequenceiq.cloudbreak.api.model.mpack.ManagementPackDetails;
@@ -342,7 +343,7 @@ public class ClusterService {
         }
     }
 
-    private boolean isMultipleGateway(Stack stack) {
+    public boolean isMultipleGateway(Stack stack) {
         int gatewayCount = 0;
         for (InstanceGroup ig : stack.getInstanceGroups()) {
             if (ig.getInstanceGroupType() == InstanceGroupType.GATEWAY) {
@@ -350,6 +351,19 @@ public class ClusterService {
             }
         }
         return gatewayCount > 1;
+    }
+
+    public void removeTerminatedPrimaryGateway(Long clusterId, String hostName, boolean singlePrimaryGateway) {
+        if (!singlePrimaryGateway) {
+            return;
+        }
+
+        Set<HostMetadata> primaryGateways = hostMetadataRepository.findHostsInClusterByName(clusterId, hostName);
+
+        List<HostMetadata> oldPrimaryGateways = primaryGateways.stream()
+                .filter(hmd -> hmd.getHostMetadataState() != HostMetadataState.SERVICES_RUNNING)
+                .collect(Collectors.toList());
+        hostMetadataRepository.deleteAll(oldPrimaryGateways);
     }
 
     public Iterable<Cluster> saveAll(Iterable<Cluster> clusters) {
@@ -622,6 +636,7 @@ public class ClusterService {
                     List<String> nodesToRepair = new ArrayList<>();
                     if (hg.getRecoveryMode() == RecoveryMode.MANUAL && (!hostGroupMode || repairedHostGroups.contains(hg.getName()))) {
                         for (HostMetadata hmd : hg.getHostMetadata()) {
+                            checkReattachSupportForGateways(inTransactionStack, repairWithReattach, cluster, hmd);
                             if (isRepairNeededForHost(hostGroupMode, instanceHostNames, hmd)) {
                                 checkDiskTypeSupported(inTransactionStack, repairWithReattach, hg);
                                 validateRepair(inTransactionStack, hmd, repairWithReattach);
@@ -641,6 +656,15 @@ public class ClusterService {
         }
         List<String> repairedEntities = CollectionUtils.isEmpty(repairedHostGroups) ? nodeIds : repairedHostGroups;
         triggerRepair(stackId, hostGroupToNodesMap, removeOnly, repairedEntities);
+    }
+
+    private void checkReattachSupportForGateways(Stack inTransactionStack, boolean repairWithReattach, Cluster cluster, HostMetadata hmd) {
+        boolean ambariRdsPresent = cluster.getRdsConfigs().stream()
+                .anyMatch(rdsConfig -> "AMBARI".equals(rdsConfig.getType()) && ResourceStatus.USER_MANAGED.equals(rdsConfig.getStatus()));
+        boolean singleNodeGateway = isGateway(hmd) && !isMultipleGateway(inTransactionStack);
+        if (repairWithReattach && !ambariRdsPresent && singleNodeGateway) {
+            throw new BadRequestException("Repair with disk reattach not supported on single node gateway without external Ambari RDS.");
+        }
     }
 
     private void checkReattachSupportedOnProvider(Stack inTransactionStack, boolean repairWithReattach) {
@@ -685,9 +709,9 @@ public class ClusterService {
     }
 
     private void validateRepair(Stack stack, HostMetadata hostMetadata, boolean repairWithReattach) {
-        if (!repairWithReattach && (isGateway(hostMetadata) && !isMultipleGateway(stack))) {
-            throw new BadRequestException("Ambari server failure cannot be repaired with single gateway!");
-        }
+//        if (!repairWithReattach && (isGateway(hostMetadata) && !isMultipleGateway(stack))) {
+//            throw new BadRequestException("Ambari server failure cannot be repaired with single gateway!");
+//        }
         if (isGateway(hostMetadata) && withEmbeddedAmbariDB(stack.getCluster())) {
             throw new BadRequestException("Ambari server failure with embedded database cannot be repaired!");
         }
