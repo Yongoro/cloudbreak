@@ -1,6 +1,7 @@
 package com.sequenceiq.cloudbreak.service.cluster.clouderamanager;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -26,5 +27,40 @@ public class ClouderaManagerModificationService implements ClusterModificationSe
     @Override
     public int startCluster(Stack stack) throws CloudbreakException {
         return 0;
+    }
+
+    @Override
+    public Map<String, String> gatherInstalledComponents(Stack stack, String hostname) {
+        return Map.of();
+    }
+
+    @Override
+    public void stopComponents(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException {
+
+    }
+
+    @Override
+    public void ensureComponentsAreStopped(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException {
+
+    }
+
+    @Override
+    public void initComponents(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException {
+
+    }
+
+    @Override
+    public void installComponents(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException {
+
+    }
+
+    @Override
+    public void regenerateKerberosKeytabs(Stack stack, String hostname) throws CloudbreakException {
+
+    }
+
+    @Override
+    public void startComponents(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException {
+
     }
 }

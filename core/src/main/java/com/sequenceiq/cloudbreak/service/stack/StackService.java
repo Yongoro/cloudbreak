@@ -106,7 +106,7 @@ import com.sequenceiq.cloudbreak.service.workspace.WorkspaceService;
 @Service
 public class StackService {
 
-    public static final List<String> REATTACH_COMPATIBLE_PLATFORMS = List.of(CloudConstants.AWS, CloudConstants.AZURE, CloudConstants.GCP);
+    public static final List<String> REATTACH_COMPATIBLE_PLATFORMS = List.of(CloudConstants.AWS, CloudConstants.AZURE, CloudConstants.GCP, CloudConstants.MOCK);
 
     private static final String SSH_USER_CB = "cloudbreak";
 
@@ -742,6 +742,7 @@ public class StackService {
     public List<InstanceMetaData> getInstanceMetaDataForPrivateIds(List<InstanceMetaData> instanceMetaDataList, Collection<Long> privateIds) {
         return instanceMetaDataList.stream()
                 .filter(instanceMetaData -> privateIds.contains(instanceMetaData.getPrivateId()))
+                .filter(instanceMetaData -> !instanceMetaData.isTerminated())
                 .collect(Collectors.toList());
     }
 
