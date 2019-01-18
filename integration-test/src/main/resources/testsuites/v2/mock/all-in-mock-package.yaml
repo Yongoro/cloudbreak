@@ -1,4 +1,6 @@
 name: "mock-cluster-tests"
+parallel: "methods"
+threadCount: 4
 tests:
   - name: "newway mock testcases"
     packages:
