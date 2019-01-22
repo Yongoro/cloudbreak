@@ -63,4 +63,9 @@ public class ClouderaManagerModificationService implements ClusterModificationSe
     public void startComponents(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException {
 
     }
+
+    @Override
+    public void restartAll(Stack stack, String hostname) throws CloudbreakException {
+        
+    }
 }

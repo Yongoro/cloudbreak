@@ -87,6 +87,10 @@ public interface ClusterApi {
         clusterModificationService().startComponents(stack, components, hostname);
     }
 
+    default void restartAll(Stack stack, String hostname) throws CloudbreakException {
+        clusterModificationService().restartAll(stack, hostname);
+    }
+
     ClusterSetupService clusterSetupService();
 
     ClusterModificationService clusterModificationService();

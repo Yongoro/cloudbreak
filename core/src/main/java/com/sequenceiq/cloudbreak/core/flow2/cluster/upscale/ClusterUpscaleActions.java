@@ -117,7 +117,6 @@ public class ClusterUpscaleActions {
         return new AbstractClusterUpscaleAction<UpscaleCheckHostMetadataResult>(UpscaleCheckHostMetadataResult.class) {
             @Override
             protected void doExecute(ClusterUpscaleContext context, UpscaleCheckHostMetadataResult payload, Map<Object, Object> variables) {
-                clusterUpscaleFlowService.upscalingClusterManager(context.getStackId());
                 sendEvent(context);
             }
 
@@ -285,8 +284,12 @@ public class ClusterUpscaleActions {
             protected void doExecute(ClusterUpscaleContext context, AmbariInstallComponentsResult payload, Map<Object, Object> variables) {
                 clusterUpscaleFlowService.ambariRestartAll(context.getStackId());
                 Map<String, String> components = getInstalledComponents(variables);
-                AmbariStartComponentsRequest request =
-                        new AmbariStartComponentsRequest(context.getStackId(), context.getHostGroupName(), context.getPrimaryGatewayHostName(), components);
+                AmbariStartComponentsRequest request = new AmbariStartComponentsRequest(
+                        context.getStackId(),
+                        context.getHostGroupName(),
+                        context.getPrimaryGatewayHostName(),
+                        components,
+                        getKerberosSecured(variables));
                 sendEvent(context.getFlowId(), request.selector(), request);
             }
         };
