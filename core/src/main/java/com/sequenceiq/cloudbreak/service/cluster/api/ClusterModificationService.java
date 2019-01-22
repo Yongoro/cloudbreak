@@ -29,4 +29,6 @@ public interface ClusterModificationService {
     void regenerateKerberosKeytabs(Stack stack, String hostname) throws CloudbreakException;
 
     void startComponents(Stack stack, Map<String, String> components, String hostname) throws CloudbreakException;
+
+    void restartAll(Stack stack, String hostname) throws CloudbreakException;
 }

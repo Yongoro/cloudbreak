@@ -171,6 +171,12 @@ public class ClusterUpscaleService {
         getClusterConnector(stack).startComponents(stack, components, hostname);
     }
 
+    public void restartAll(Long stackId, String hostname) throws CloudbreakException {
+        Stack stack = stackService.getByIdWithListsInTransaction(stackId);
+        LOGGER.info("Restart all in ambari on host {}", hostname);
+        getClusterConnector(stack).restartAll(stack, hostname);
+    }
+
     private ClusterApi getClusterConnector(Stack stack) {
         return clusterApiConnectors.getConnector(stack.getCluster().getVariant());
     }

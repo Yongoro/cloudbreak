@@ -37,10 +37,14 @@ public class AmbariStartComponentsHandler implements ReactorEventHandler<AmbariS
         Long stackId = request.getStackId();
         AmbariStartComponentsResult result;
         try {
-            clusterUpscaleService.startComponents(stackId, request.getComponents(), request.getHostName());
+            if (request.isRestartAll()) {
+                clusterUpscaleService.restartAll(stackId, request.getHostName());
+            } else {
+                clusterUpscaleService.startComponents(stackId, request.getComponents(), request.getHostName());
+            }
             result = new AmbariStartComponentsResult(request);
         } catch (Exception e) {
-            String message = "Failed to start components on new host";
+            String message = "Failed to start / restart components on new host";
             LOGGER.error(message, e);
             result = new AmbariStartComponentsResult(message, e, request);
         }

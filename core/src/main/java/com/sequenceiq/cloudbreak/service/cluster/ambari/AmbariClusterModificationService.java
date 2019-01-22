@@ -274,6 +274,26 @@ public class AmbariClusterModificationService implements ClusterModificationServ
         tryWithRetry(() -> {
             try {
                 AmbariClient ambariClient = clientFactory.getAmbariClient(stack, stack.getCluster());
+                Map<String, Integer> operationRequests = ambariClient.startComponentsOnHost(hostname, collectMasterSlaveComponenets(components));
+                waitForOperation(stack, ambariClient, operationRequests, hostname, START_SERVICES_AMBARI_PROGRESS_STATE, AMBARI_CLUSTER_SERVICES_START_FAILED);
+            } catch (RuntimeException | HttpResponseException e) {
+                LOGGER.error("Error starting components on ambari", e);
+                throw new RecoverableAmbariException(e);
+            } catch (ClusterException e) {
+                LOGGER.error("Error starting components on ambari", e);
+                if (PollingResult.isFailure(e.getPollingResult())) {
+                    throw new RecoverableAmbariException(e);
+                }
+                throw new IrrecoverableAmbariException(e);
+            }
+        });
+    }
+
+    @Override
+    public void restartAll(Stack stack, String hostname) throws CloudbreakException {
+        tryWithRetry(() -> {
+            try {
+                AmbariClient ambariClient = clientFactory.getAmbariClient(stack, stack.getCluster());
                 Integer operationId = ambariClient.restartAllServices(stack.getCluster().getName());
                 Map<String, Integer> operationRequests = Map.of("restartAllServices", operationId);
                 waitForOperation(stack, ambariClient, operationRequests, hostname, START_SERVICES_AMBARI_PROGRESS_STATE, AMBARI_CLUSTER_SERVICES_START_FAILED);
