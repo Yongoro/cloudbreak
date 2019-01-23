@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
 
+import com.sequenceiq.it.StructuredEventWaiter;
 import com.sequenceiq.it.cloudbreak.newway.CloudbreakClient;
 import com.sequenceiq.it.cloudbreak.newway.CloudbreakTest;
 import com.sequenceiq.it.cloudbreak.newway.Prototype;
@@ -64,6 +66,10 @@ public class TestContext implements ApplicationContextAware {
 
     @Inject
     private WaitUtil waitUtil;
+
+    @Inject
+    private StructuredEventWaiter eventWaitUtil;
+
 
     @Inject
     private TestParameter testParameter;
@@ -350,8 +356,19 @@ public class TestContext implements ApplicationContextAware {
         return await(entity, desiredStatuses, emptyRunningParameter());
     }
 
-    public <T extends CloudbreakEntity> T awaitEvent(T entity, Map<String, String> desiredStatuses, RunningParameter runningParameter) {
-
+    public <T extends CloudbreakEntity> T awaitEvent(T entity, String desiredStatus, RunningParameter runningParameter) {
+        try {
+            LOGGER.info("Using event awaiter for cluster for status [{}]", desiredStatus);
+            eventWaitUtil.setAwaitedStatus(desiredStatus);
+            boolean result = eventWaitUtil.getLatch().await(50, TimeUnit.SECONDS);
+            eventWaitUtil.reset();
+            if(!result){
+                throw new RuntimeException("Event timeout happened");
+            }
+        } catch (InterruptedException e) {
+            exceptionMap.put("awaitEvent " + entity + " for desired statuses" + desiredStatus, e);
+            eventWaitUtil.reset();
+        }
         return entity;
     }
 

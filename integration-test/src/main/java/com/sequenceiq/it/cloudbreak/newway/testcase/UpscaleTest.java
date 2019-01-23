@@ -47,11 +47,11 @@ public class UpscaleTest extends AbstractIntegrationTest {
         // GIVEN
         testContext.given(Stack.class)
                 .when(new StackPostAction())
-                .await(STACK_AVAILABLE)
+                .awaitEvent("CLUSTER_CREATION_FINISHED_STATE")
                 .when(StackScalePostAction.valid().withDesiredCount(15))
-                .await(STACK_AVAILABLE)
+                .awaitEvent("FINALIZE_UPSCALE_STATE")
                 .when(StackScalePostAction.valid().withDesiredCount(6))
-                .await(STACK_AVAILABLE)
+                .awaitEvent("DOWNSCALE_FINISHED_STATE")
                 .validate();
     }
 

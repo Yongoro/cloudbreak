@@ -1,7 +1,6 @@
 package com.sequenceiq.it;
 
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,20 +13,14 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.test.annotation.DirtiesContext;
-
-import com.sequenceiq.cloudbreak.structuredevent.event.StructuredFlowEvent;
-import com.sequenceiq.cloudbreak.util.JsonUtil;
 
 @EnableKafka
 @Configuration
-@DirtiesContext
 public class StructuredEventTestListener extends SpringBootServletInitializer {
 
 
@@ -48,28 +41,17 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
         SpringApplication.run(StructuredEventTestListener.class, args);
     }
 
-    @KafkaListener(topics = "StructuredEvents", containerFactory = "kafkaListenerContainerFactory")
-    public void receiveStructureEvent(final String payload) {
-        StructuredFlowEvent flowEvent = parseStructuredFlowEvent(payload);
-        if(flowEvent.getFlow() != null){
-            LOGGER.info("CLUSTER STATUS: [{}]", flowEvent.getFlow().getFlowState());
-        }
-    }
-
-    public StructuredFlowEvent parseStructuredFlowEvent(String payload){
-        try {
-            return JsonUtil.readValue(payload, StructuredFlowEvent.class);
-        } catch (IOException e) {
-            LOGGER.debug("Parse not successful for payload: {}", payload);
-        }
-        return null;
-    }
+//    @KafkaListener(topics = "StructuredEvents", containerFactory = "kafkaListenerContainerFactory")
+//    public void receiveStructureEvent(final String payload) {
+//        LOGGER.trace("Received payload: {}", payload);
+//    }
 
     @Bean
     public KafkaListenerContainerFactory<?> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setBatchListener(true);
+//        factory.setAutoStartup(false);
         return factory;
     }
 
@@ -83,6 +65,9 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
         String brokerHost = "localhost:3333";
         LOGGER.info("STARTING EMBEDDED KAFKA ON {}", brokerHost);
         Map<String, Object> props = new HashMap<>();
+        //this might not be needed, now it's here just to be safe
+//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerHost);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "1111");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
