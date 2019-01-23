@@ -23,7 +23,6 @@ import org.springframework.kafka.test.rule.KafkaEmbedded;
 @Configuration
 public class StructuredEventTestListener extends SpringBootServletInitializer {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(StructuredEventTestListener.class);
 
     private static final String ZKHOST = "127.0.0.1";

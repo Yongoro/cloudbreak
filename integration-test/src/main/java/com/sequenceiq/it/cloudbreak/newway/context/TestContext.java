@@ -70,7 +70,6 @@ public class TestContext implements ApplicationContextAware {
     @Inject
     private StructuredEventWaiter eventWaitUtil;
 
-
     @Inject
     private TestParameter testParameter;
 
@@ -362,7 +361,7 @@ public class TestContext implements ApplicationContextAware {
             eventWaitUtil.setAwaitedStatus(desiredStatus);
             boolean result = eventWaitUtil.getLatch().await(50, TimeUnit.SECONDS);
             eventWaitUtil.reset();
-            if(!result){
+            if (!result) {
                 throw new RuntimeException("Event timeout happened");
             }
         } catch (InterruptedException e) {

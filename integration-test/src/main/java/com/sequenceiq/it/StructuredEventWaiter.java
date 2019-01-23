@@ -19,6 +19,7 @@ public class StructuredEventWaiter extends SpringBootServletInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructuredEventWaiter.class);
 
     private String awaitedStatus;
+
     private CountDownLatch latch = new CountDownLatch(1);
 
     public CountDownLatch getLatch() {

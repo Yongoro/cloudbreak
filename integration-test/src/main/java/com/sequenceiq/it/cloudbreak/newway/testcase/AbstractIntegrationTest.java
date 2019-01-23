@@ -32,7 +32,8 @@ import com.sequenceiq.it.cloudbreak.newway.context.PurgeGarbageService;
 import com.sequenceiq.it.cloudbreak.newway.context.TestContext;
 import com.sequenceiq.it.config.IntegrationTestConfiguration;
 
-@ContextConfiguration(classes = {IntegrationTestConfiguration.class, StructuredEventTestListener.class}, initializers = ConfigFileApplicationContextInitializer.class)
+@ContextConfiguration(classes = {IntegrationTestConfiguration.class, StructuredEventTestListener.class},
+        initializers = ConfigFileApplicationContextInitializer.class)
 public abstract class AbstractIntegrationTest extends AbstractTestNGSpringContextTests {
 
     public static final Map<String, String> STACK_DELETED = Map.of("status", "DELETE_COMPLETED");
