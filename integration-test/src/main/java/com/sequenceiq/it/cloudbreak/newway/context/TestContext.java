@@ -350,6 +350,11 @@ public class TestContext implements ApplicationContextAware {
         return await(entity, desiredStatuses, emptyRunningParameter());
     }
 
+    public <T extends CloudbreakEntity> T awaitEvent(T entity, Map<String, String> desiredStatuses, RunningParameter runningParameter) {
+
+        return entity;
+    }
+
     public <T extends CloudbreakEntity> T await(T entity, Map<String, String> desiredStatuses, RunningParameter runningParameter) {
         checkShutdown();
         String key = getKey(entity.getClass(), runningParameter);
