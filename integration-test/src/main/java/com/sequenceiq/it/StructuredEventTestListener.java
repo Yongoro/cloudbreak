@@ -1,6 +1,7 @@
 package com.sequenceiq.it;
 
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,9 +20,14 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
+import org.springframework.test.annotation.DirtiesContext;
+
+import com.sequenceiq.cloudbreak.structuredevent.event.StructuredFlowEvent;
+import com.sequenceiq.cloudbreak.util.JsonUtil;
 
 @EnableKafka
 @Configuration
+@DirtiesContext
 public class StructuredEventTestListener extends SpringBootServletInitializer {
 
 
@@ -43,9 +49,20 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
     }
 
     @KafkaListener(topics = "StructuredEvents", containerFactory = "kafkaListenerContainerFactory")
-    public void receiveDunningHead(final String payload) {
-        LOGGER.info("Receiving event with payload [{}]", payload);
-        //I will do database stuff here which i could check in db for testing
+    public void receiveStructureEvent(final String payload) {
+        StructuredFlowEvent flowEvent = parseStructuredFlowEvent(payload);
+        if(flowEvent.getFlow() != null){
+            LOGGER.info("CLUSTER STATUS: [{}]", flowEvent.getFlow().getFlowState());
+        }
+    }
+
+    public StructuredFlowEvent parseStructuredFlowEvent(String payload){
+        try {
+            return JsonUtil.readValue(payload, StructuredFlowEvent.class);
+        } catch (IOException e) {
+            LOGGER.debug("Parse not successful for payload: {}", payload);
+        }
+        return null;
     }
 
     @Bean
@@ -75,7 +92,7 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
 
     @Bean
     public KafkaEmbedded createBroker() {
-        KafkaEmbedded broker = new KafkaEmbedded(1, true, "StructuredEvents");
+        KafkaEmbedded broker = new KafkaEmbedded(1, true);
         Map<String, String> brokerProperties = new HashMap<>();
         brokerProperties.put("listeners", "PLAINTEXT://localhost:3333");
         brokerProperties.put("port", "3333");

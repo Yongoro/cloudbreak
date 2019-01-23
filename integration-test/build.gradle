@@ -92,9 +92,13 @@ dependencies {
     }
     compile group: 'com.sparkjava',                 name: 'spark-core',                     version: '2.8.0'
 
-  compile group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.1.12.RELEASE'
-  compile group: 'org.springframework.kafka', name: 'spring-kafka-test', version: '2.1.12.RELEASE'
-  compile group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.13', ext: 'pom'
+  // https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j
+  compile group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.25'
+  compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.25'
+  compile (group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.1.12.RELEASE')
+  compile (group: 'org.springframework.kafka', name: 'spring-kafka-test', version: '2.1.12.RELEASE')
+  compile (group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.13', ext: 'pom')
+
 
 
   compile ("org.uncommons:reportng:1.1.4") {

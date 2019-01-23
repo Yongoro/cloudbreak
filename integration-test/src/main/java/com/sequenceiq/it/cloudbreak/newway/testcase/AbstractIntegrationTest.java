@@ -20,6 +20,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 
+import com.sequenceiq.it.StructuredEventTestListener;
 import com.sequenceiq.it.cloudbreak.newway.CredentialEntity;
 import com.sequenceiq.it.cloudbreak.newway.ImageCatalog;
 import com.sequenceiq.it.cloudbreak.newway.ImageCatalogEntity;
@@ -31,7 +32,7 @@ import com.sequenceiq.it.cloudbreak.newway.context.PurgeGarbageService;
 import com.sequenceiq.it.cloudbreak.newway.context.TestContext;
 import com.sequenceiq.it.config.IntegrationTestConfiguration;
 
-@ContextConfiguration(classes = {IntegrationTestConfiguration.class}, initializers = ConfigFileApplicationContextInitializer.class)
+@ContextConfiguration(classes = {IntegrationTestConfiguration.class, StructuredEventTestListener.class}, initializers = ConfigFileApplicationContextInitializer.class)
 public abstract class AbstractIntegrationTest extends AbstractTestNGSpringContextTests {
 
     public static final Map<String, String> STACK_DELETED = Map.of("status", "DELETE_COMPLETED");
