@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,20 +13,34 @@ import org.springframework.kafka.test.rule.KafkaEmbedded;
 
 public class EmbeddedKafkaOwn extends KafkaEmbedded {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedKafkaOwn.class);
+
     public static final String DEFAULT_HOST = "localhost";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedKafkaOwn.class);
+    public static final String DEFAULT_LISTENER = "PLAINTEXT://localhost:3333";
+
+    public static final int DEFAULT_PORT = 3333;
 
     public EmbeddedKafkaOwn(int count) {
         super(count);
     }
 
+    public static EmbeddedKafkaOwn createDefaultForTest(){
+        EmbeddedKafkaOwn broker = new EmbeddedKafkaOwn(1);
+        Map<String, String> brokerProperties = new HashMap<>();
+        brokerProperties.put("listeners", DEFAULT_LISTENER);
+        brokerProperties.put("port", String.valueOf(DEFAULT_PORT));
+        brokerProperties.put("auto.create.topics.enable", "true");
+
+        broker.brokerProperties(brokerProperties);
+        return broker;
+    }
 
     @Override
     public void before() throws Exception { //NOSONAR
         //lame hack
-        if (!isPortInUse(DEFAULT_HOST, 3333)) {
-            LOGGER.info("Starting kafka on host:post {}:{}", "localhost", 3333);
+        if (!isPortInUse(DEFAULT_HOST, DEFAULT_PORT)) {
+            LOGGER.info("Starting kafka on host:post {}:{}", DEFAULT_HOST, DEFAULT_PORT);
             super.before();
         }
     }

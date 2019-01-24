@@ -24,14 +24,6 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StructuredEventTestListener.class);
 
-    private static final String ZKHOST = "127.0.0.1";
-
-    private static final String BROKERHOST = "127.0.0.1";
-
-    private static final String BROKERPORT = "9092";
-
-    private static final String TOPIC = "test";
-
     @Autowired
     private EmbeddedKafkaOwn kafkaEmbedded;
 
@@ -39,17 +31,11 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
         SpringApplication.run(StructuredEventTestListener.class, args);
     }
 
-//    @KafkaListener(topics = "StructuredEvents", containerFactory = "kafkaListenerContainerFactory")
-//    public void receiveStructureEvent(final String payload) {
-//        LOGGER.trace("Received payload: {}", payload);
-//    }
-
     @Bean
     public KafkaListenerContainerFactory<?> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setBatchListener(true);
-//        factory.setAutoStartup(false);
         return factory;
     }
 
@@ -63,8 +49,6 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
         String brokerHost = "localhost:3333";
         LOGGER.info("STARTING EMBEDDED KAFKA ON {}", brokerHost);
         Map<String, Object> props = new HashMap<>();
-        //this might not be needed, now it's here just to be safe
-//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerHost);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "1111");
@@ -75,13 +59,7 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
 
     @Bean
     public EmbeddedKafkaOwn createBroker() {
-        EmbeddedKafkaOwn broker = new EmbeddedKafkaOwn(1);
-        Map<String, String> brokerProperties = new HashMap<>();
-        brokerProperties.put("listeners", "PLAINTEXT://localhost:3333");
-        brokerProperties.put("port", "3333");
-        brokerProperties.put("auto.create.topics.enable", "true");
-
-        broker.brokerProperties(brokerProperties);
+        EmbeddedKafkaOwn broker = EmbeddedKafkaOwn.createDefaultForTest();
         return broker;
     }
 }

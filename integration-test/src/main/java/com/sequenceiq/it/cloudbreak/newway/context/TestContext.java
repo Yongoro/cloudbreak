@@ -358,11 +358,12 @@ public class TestContext implements ApplicationContextAware {
     public <T extends CloudbreakEntity> T awaitEvent(T entity, String desiredStatus, RunningParameter runningParameter) {
         try {
             LOGGER.info("Using event awaiter for cluster for status [{}]", desiredStatus);
-            eventWaitUtil.setAwaitedStatus(desiredStatus);
+
+            eventWaitUtil.setAwaitedStatus(entity.getName(), desiredStatus);
             boolean result = eventWaitUtil.getLatch().await(50, TimeUnit.SECONDS);
             eventWaitUtil.reset();
             if (!result) {
-                throw new RuntimeException("Event timeout happened");
+                throw new RuntimeException("Event timeout happened, waited for" + desiredStatus);
             }
         } catch (InterruptedException e) {
             exceptionMap.put("awaitEvent " + entity + " for desired statuses" + desiredStatus, e);

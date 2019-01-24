@@ -18,6 +18,8 @@ public class StructuredEventWaiter extends SpringBootServletInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StructuredEventWaiter.class);
 
+    private String clusterName;
+
     private String awaitedStatus;
 
     private CountDownLatch latch = new CountDownLatch(1);
@@ -31,13 +33,14 @@ public class StructuredEventWaiter extends SpringBootServletInitializer {
         StructuredFlowEvent flowEvent = parseStructuredFlowEvent(payload);
         if (flowEvent.getFlow() != null) {
             LOGGER.info("CLUSTER STATUS: [{}]", flowEvent.getFlow().getFlowState());
-            if (flowEvent.getFlow().getFlowState().equals(awaitedStatus)) {
+            if (flowEvent.getFlow().getFlowState().equals(awaitedStatus) && flowEvent.getCluster().getName().equals(clusterName)) {
                 latch.countDown();
             }
         }
     }
 
-    public void setAwaitedStatus(String awaitedStatus) {
+    public void setAwaitedStatus(String clusterName, String awaitedStatus) {
+        this.clusterName = clusterName;
         this.awaitedStatus = awaitedStatus;
     }
 
