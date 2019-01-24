@@ -17,7 +17,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
 
 @EnableKafka
 @Configuration
@@ -34,7 +33,7 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
     private static final String TOPIC = "test";
 
     @Autowired
-    private KafkaEmbedded kafkaEmbedded;
+    private EmbeddedKafkaOwn kafkaEmbedded;
 
     public static void main(String[] args) {
         SpringApplication.run(StructuredEventTestListener.class, args);
@@ -75,8 +74,8 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
     }
 
     @Bean
-    public KafkaEmbedded createBroker() {
-        KafkaEmbedded broker = new KafkaEmbedded(1, true);
+    public EmbeddedKafkaOwn createBroker() {
+        EmbeddedKafkaOwn broker = new EmbeddedKafkaOwn(1);
         Map<String, String> brokerProperties = new HashMap<>();
         brokerProperties.put("listeners", "PLAINTEXT://localhost:3333");
         brokerProperties.put("port", "3333");
