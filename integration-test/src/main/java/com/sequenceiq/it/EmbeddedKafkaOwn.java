@@ -13,19 +13,19 @@ import org.springframework.kafka.test.rule.KafkaEmbedded;
 
 public class EmbeddedKafkaOwn extends KafkaEmbedded {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedKafkaOwn.class);
-
     public static final String DEFAULT_HOST = "localhost";
+
+    public static final int DEFAULT_PORT = 3333;
 
     public static final String DEFAULT_LISTENER = "PLAINTEXT://localhost:3333";
 
-    public static final int DEFAULT_PORT = 3333;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedKafkaOwn.class);
 
     public EmbeddedKafkaOwn(int count) {
         super(count);
     }
 
-    public static EmbeddedKafkaOwn createDefaultForTest(){
+    public static EmbeddedKafkaOwn createDefaultForTest() {
         EmbeddedKafkaOwn broker = new EmbeddedKafkaOwn(1);
         Map<String, String> brokerProperties = new HashMap<>();
         brokerProperties.put("listeners", DEFAULT_LISTENER);
@@ -38,11 +38,15 @@ public class EmbeddedKafkaOwn extends KafkaEmbedded {
 
     @Override
     public void before() throws Exception { //NOSONAR
-        //lame hack
+        // lame hack
         if (!isPortInUse(DEFAULT_HOST, DEFAULT_PORT)) {
             LOGGER.info("Starting kafka on host:post {}:{}", DEFAULT_HOST, DEFAULT_PORT);
             super.before();
         }
+    }
+
+    public static String getDefaultBrokerHostAndPort() {
+        return DEFAULT_HOST + ":" + DEFAULT_PORT;
     }
 
     private boolean isPortInUse(String host, int port) {

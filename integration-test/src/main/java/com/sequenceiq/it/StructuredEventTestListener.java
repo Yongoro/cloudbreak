@@ -46,7 +46,7 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
 
     @Bean
     public Map<String, Object> consumerConfigs() {
-        String brokerHost = "localhost:3333";
+        String brokerHost = EmbeddedKafkaOwn.getDefaultBrokerHostAndPort();
         LOGGER.info("STARTING EMBEDDED KAFKA ON {}", brokerHost);
         Map<String, Object> props = new HashMap<>();
 
@@ -59,7 +59,6 @@ public class StructuredEventTestListener extends SpringBootServletInitializer {
 
     @Bean
     public EmbeddedKafkaOwn createBroker() {
-        EmbeddedKafkaOwn broker = EmbeddedKafkaOwn.createDefaultForTest();
-        return broker;
+        return EmbeddedKafkaOwn.createDefaultForTest();
     }
 }
