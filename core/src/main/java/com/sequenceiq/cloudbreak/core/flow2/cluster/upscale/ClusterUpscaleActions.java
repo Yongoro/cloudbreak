@@ -282,14 +282,15 @@ public class ClusterUpscaleActions {
 
             @Override
             protected void doExecute(ClusterUpscaleContext context, AmbariInstallComponentsResult payload, Map<Object, Object> variables) {
-                clusterUpscaleFlowService.ambariRestartAll(context.getStackId());
+                Boolean restartNeeded = getKerberosSecured(variables);
+                clusterUpscaleFlowService.ambariComponentsStart(context.getStackId(), restartNeeded);
                 Map<String, String> components = getInstalledComponents(variables);
                 AmbariStartComponentsRequest request = new AmbariStartComponentsRequest(
                         context.getStackId(),
                         context.getHostGroupName(),
                         context.getPrimaryGatewayHostName(),
                         components,
-                        getKerberosSecured(variables));
+                        restartNeeded);
                 sendEvent(context.getFlowId(), request.selector(), request);
             }
         };
