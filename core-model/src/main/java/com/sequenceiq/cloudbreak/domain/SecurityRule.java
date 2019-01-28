@@ -10,7 +10,10 @@ import javax.persistence.SequenceGenerator;
 
 @Entity
 public class SecurityRule implements ProvisionEntity {
+
     private static final String PORT_DELIMITER = ",";
+
+    private static final String[] EMPTY_PORTS = new String[0];
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "securityrule_generator")
@@ -54,6 +57,9 @@ public class SecurityRule implements ProvisionEntity {
     }
 
     public String[] getPorts() {
+        if ("icmp".equals(protocol)) {
+            return EMPTY_PORTS;
+        }
         return ports.split(PORT_DELIMITER);
     }
 
