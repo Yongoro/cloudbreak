@@ -89,8 +89,12 @@ class ClusterUpscaleFlowService {
         sendMessage(stackId, Msg.AMBARI_REINSTALL_COMPONENTS_STARTED, "Reinstalling ambari components.");
     }
 
-    void ambariRestartAll(long stackId) {
-        sendMessage(stackId, Msg.AMBARI_RESTART_ALL_COMPONENTS_STARTED, "Restarting all components on all nodes.");
+    void ambariComponentsStart(long stackId, Boolean restartAll) {
+        if (restartAll) {
+            sendMessage(stackId, Msg.AMBARI_RESTART_ALL_STARTED, "Restarting all components on all nodes.");
+        } else {
+            sendMessage(stackId, Msg.AMBARI_START_COMPONENTS_STARTED, "Start components on new hosts.");
+        }
     }
 
     private void sendMessage(long stackId, Msg ambariMessage, String statusReason) {
